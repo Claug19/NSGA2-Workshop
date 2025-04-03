@@ -1,8 +1,14 @@
 #pragma once
-#include <vector>
+#include <algorithm>
+#include <cstdlib>
+#include <iomanip>
+#include <iostream>
 #include <map>
+#include <memory>
+#include <stdio.h>
+#include <vector>
 
-#include "individual.h"
+#include "Individual.cpp"
 
 class Nsga {
 public:

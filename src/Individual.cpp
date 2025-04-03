@@ -1,4 +1,4 @@
-#include "individual.h"
+#include "Individual.hpp"
 
 
 std::stringstream Individual::getGenesAsSStream()

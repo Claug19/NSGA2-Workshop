@@ -1,5 +1,8 @@
 #pragma once
+#include <iomanip>
 #include <sstream>
+#include <memory>
+#include <vector>
 
 struct Individual{
 public:
