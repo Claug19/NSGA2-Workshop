@@ -1,6 +1,5 @@
 #include "Individual.hpp"
 
-
 std::stringstream Individual::getGenesAsSStream()
 {
 	std::stringstream result;
@@ -27,6 +26,6 @@ void Individual::mutate()
 
 	int mutation = rand() % 2;
 
-	processes_[randomProcessMutation] += (mutation==1?-1:+1);
-	machines_[randomMachineMutation] += (mutation==1?-1:+1);
+	processes_[randomProcessMutation] += (mutation == 1 ? -1 : +1);
+	machines_[randomMachineMutation] += (mutation == 1 ? -1 : +1);
 }

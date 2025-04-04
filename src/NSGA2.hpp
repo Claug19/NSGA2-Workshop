@@ -10,7 +10,8 @@
 
 #include "Individual.cpp"
 
-class Nsga {
+class Nsga
+{
 public:
 	Nsga();
 	Nsga(int n, int m, int itterations, int sampleSize, int numberOfProcesses);
@@ -30,7 +31,7 @@ private:
 	void calculateCrowdingDistance();
 	void calculateFrontCrowdingDistance();
 	void selectionTournament(std::vector<int> &tournamnetIndexVector,
-						   	 std::vector<int> &winnerIndexVector,
+							 std::vector<int> &winnerIndexVector,
 							 int iter);
 
 	// sorting methods
@@ -49,10 +50,10 @@ private:
 	int numberOfProcesses_;
 	const int maxDuration_ = 10;
 	const float maxCrowdingDistance_ = 10000;
-	
+
 	std::vector<IndividualPtr> population_;
 	// duration for workpieces in order to calculate KPIs
-	std::map<int,int> durationMap_;
+	std::map<int, int> durationMap_;
 
 	std::vector<int> front1_;
 	std::vector<int> front2_;

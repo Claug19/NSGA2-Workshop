@@ -1,10 +1,12 @@
 #include "NSGA2.hpp"
 
-Nsga::Nsga() {
+Nsga::Nsga()
+{
 	n_ = m_ = itterations_ = sampleSize_ = numberOfProcesses_ = 0;
 }
 
-Nsga::Nsga(int n, int m, int itterations,int sampleSize, int numberOfProcesses) {
+Nsga::Nsga(int n, int m, int itterations, int sampleSize, int numberOfProcesses)
+{
 	n_ = n;
 	m_ = m;
 	itterations_ = itterations;
@@ -12,7 +14,8 @@ Nsga::Nsga(int n, int m, int itterations,int sampleSize, int numberOfProcesses) 
 	numberOfProcesses_ = numberOfProcesses;
 }
 
-void Nsga::run() {
+void Nsga::run()
+{
 	int itteration = 1;
 
 	std::cout << "\nSTEP 1: Population initialization\n";
@@ -20,7 +23,7 @@ void Nsga::run() {
 
 	while (itteration <= itterations_)
 	{
-		
+
 		std::cout << "\nItteration number " << itteration << std::endl;
 
 		std::cout << "\nSTEP 2: Determination of the objective function fitness value\n";
@@ -45,13 +48,14 @@ void Nsga::run() {
 	outputOptimalSolution();
 }
 
-void Nsga::initalizePopulation() {
-	for (int i=0; i<sampleSize_; i++)
+void Nsga::initalizePopulation()
+{
+	for (int i = 0; i < sampleSize_; i++)
 	{
 		IndividualPtr individual = std::make_shared<Individual>();
 
 		// generating random workpieces/processes
-		for(int j=0; j<numberOfProcesses_; j++)
+		for (int j = 0; j < numberOfProcesses_; j++)
 		{
 			int randomProcessNumber = rand() % n_ + 1;
 			individual->processes_.push_back(randomProcessNumber);
@@ -64,11 +68,11 @@ void Nsga::initalizePopulation() {
 		}
 
 		// generating random machines for previous workpieces
-		for(int k=0; k<numberOfProcesses_; k++)
+		for (int k = 0; k < numberOfProcesses_; k++)
 		{
 			individual->machines_.push_back(rand() % m_ + 1);
 		}
-		
+
 		// initialize with 0 maximum completion time
 		individual->maxCompletionTime_ = 0;
 		// initialize with 0 total delay time
@@ -82,10 +86,11 @@ void Nsga::initalizePopulation() {
 	getchar(); // g++ pause
 }
 
-void Nsga::determineFitnessValue() {
+void Nsga::determineFitnessValue()
+{
 	int individualNumber = 0;
-	
-	for(auto& individual : population_)
+
+	for (auto &individual : population_)
 	{
 		// calculate and set maximum completion time
 		int maxCompletionTime = 0;
@@ -94,7 +99,7 @@ void Nsga::determineFitnessValue() {
 
 		std::map<int, int> machinesRuntime;
 
-		for(int gene = 0; gene < numberOfProcesses_; gene++)
+		for (int gene = 0; gene < numberOfProcesses_; gene++)
 		{
 			int currentWorkpieceTime = (durationMap_.find(individual->processes_[gene]))->second;
 
@@ -102,20 +107,20 @@ void Nsga::determineFitnessValue() {
 			auto machineTime = machinesRuntime.find(individual->machines_[gene]);
 			if (machineTime != machinesRuntime.end())
 			{
-				machineTime->second+= currentWorkpieceTime;
+				machineTime->second += currentWorkpieceTime;
 			}
 			else
 			{
 				machinesRuntime.insert({individual->machines_[gene], currentWorkpieceTime});
 			}
 		}
-		for(auto it : machinesRuntime)
+		for (auto it : machinesRuntime)
 		{
 			if (it.second > maxCompletionTime)
 			{
 				maxCompletionTime = it.second;
 			}
-			totalEquipmentLoad+= it.second;
+			totalEquipmentLoad += it.second;
 		}
 		population_[individualNumber]->maxCompletionTime_ = maxCompletionTime;
 		population_[individualNumber++]->totalEquipmentLoad_ = totalEquipmentLoad;
@@ -125,33 +130,34 @@ void Nsga::determineFitnessValue() {
 	getchar(); // g++ pause
 }
 
-void Nsga::rankNonDominatedAndCrowding() {
+void Nsga::rankNonDominatedAndCrowding()
+{
 
 	// Non-dominated sorting
-	for (std::size_t i=0; i < (population_.size() - 1); i++)
+	for (std::size_t i = 0; i < (population_.size() - 1); i++)
 	{
-		for (uint j=i+1; j < population_.size(); j++)
+		for (uint j = i + 1; j < population_.size(); j++)
 		{
 			// check if point 1 < point 2
-			if((population_[i]->maxCompletionTime_ <= population_[j]->maxCompletionTime_ &&
-				population_[i]->totalEquipmentLoad_ <= population_[j]->totalEquipmentLoad_) &&
-			   (population_[i]->maxCompletionTime_ < population_[j]->maxCompletionTime_ ||
-			   	population_[i]->totalEquipmentLoad_ < population_[j]->totalEquipmentLoad_))
+			if ((population_[i]->maxCompletionTime_ <= population_[j]->maxCompletionTime_ &&
+				 population_[i]->totalEquipmentLoad_ <= population_[j]->totalEquipmentLoad_) &&
+				(population_[i]->maxCompletionTime_ < population_[j]->maxCompletionTime_ ||
+				 population_[i]->totalEquipmentLoad_ < population_[j]->totalEquipmentLoad_))
 			{
 				population_[i]->dominatedPoints_.push_back(j);
-				population_[j]->dominationCount_+=1;
+				population_[j]->dominationCount_ += 1;
 				// (dominationValues[i].second).push_back(j);
 				// dominationValues[j].first+= 1;
 			}
 
 			// check if point 2 < point 1
-			if((population_[j]->maxCompletionTime_ <= population_[i]->maxCompletionTime_ &&
-				population_[j]->totalEquipmentLoad_ <= population_[i]->totalEquipmentLoad_) &&
-			   (population_[j]->maxCompletionTime_ < population_[i]->maxCompletionTime_ ||
-			   	population_[j]->totalEquipmentLoad_ < population_[i]->totalEquipmentLoad_))
+			if ((population_[j]->maxCompletionTime_ <= population_[i]->maxCompletionTime_ &&
+				 population_[j]->totalEquipmentLoad_ <= population_[i]->totalEquipmentLoad_) &&
+				(population_[j]->maxCompletionTime_ < population_[i]->maxCompletionTime_ ||
+				 population_[j]->totalEquipmentLoad_ < population_[i]->totalEquipmentLoad_))
 			{
 				population_[j]->dominatedPoints_.push_back(i);
-				population_[i]->dominationCount_+=1;
+				population_[i]->dominationCount_ += 1;
 			}
 		}
 	}
@@ -171,43 +177,44 @@ void Nsga::rankNonDominatedAndCrowding() {
 
 	//	sort population based on front and then sort based on crowding distance
 	std::sort(population_.begin(), population_.end(),
-		[](const IndividualPtr &a, const IndividualPtr &b) -> bool
-		{
-			return a->frontLevel_ < b->frontLevel_;
-		});
+			  [](const IndividualPtr &a, const IndividualPtr &b) -> bool
+			  {
+				  return a->frontLevel_ < b->frontLevel_;
+			  });
 
 	std::sort(population_.begin(), population_.end(),
-		[](const IndividualPtr &a, const IndividualPtr &b) -> bool
-		{
-			if (a->frontLevel_ == b->frontLevel_)
-				return a->crowdingDistance_ > b->crowdingDistance_;
-			else
-				return false;
-		});
+			  [](const IndividualPtr &a, const IndividualPtr &b) -> bool
+			  {
+				  if (a->frontLevel_ == b->frontLevel_)
+					  return a->crowdingDistance_ > b->crowdingDistance_;
+				  else
+					  return false;
+			  });
 
 	printPopulation();
 
 	// since the population is sorted by both front and crowding distance, we can delete all the weak individuals
-	auto newPopulationSize = population_.size()/2;
+	auto newPopulationSize = population_.size() / 2;
 
 	// if newPopulation is not %2, the number of parents is odd, next generation will be smaller to correct issue
-	newPopulationSize = (newPopulationSize%2==0?newPopulationSize:newPopulationSize-1);
+	newPopulationSize = (newPopulationSize % 2 == 0 ? newPopulationSize : newPopulationSize - 1);
 
-	for (uint i=0; i < newPopulationSize; i++)
+	for (uint i = 0; i < newPopulationSize; i++)
 	{
 		population_.pop_back();
 	}
 
 	printPopulation();
-	getchar(); // g++ pause	
+	getchar(); // g++ pause
 }
 
-void Nsga::competitionSelection() {
-	std::srand ( unsigned ( std::time(0) ) );
+void Nsga::competitionSelection()
+{
+	std::srand(unsigned(std::time(0)));
 	std::vector<int> tournamentIndexVector;
 	std::vector<int> winnerIndexVector;
 
-	for (uint i=0; i<population_.size(); i++)
+	for (uint i = 0; i < population_.size(); i++)
 	{
 		tournamentIndexVector.push_back(i);
 	}
@@ -216,7 +223,7 @@ void Nsga::competitionSelection() {
 	while (tournamentIndexVector.size() > 2)
 	{
 
-		for (uint j=0; j < tournamentIndexVector.size() && j + 1 < tournamentIndexVector.size(); j++)
+		for (uint j = 0; j < tournamentIndexVector.size() && j + 1 < tournamentIndexVector.size(); j++)
 		{
 			selectionTournament(tournamentIndexVector, winnerIndexVector, j);
 		}
@@ -226,28 +233,29 @@ void Nsga::competitionSelection() {
 	winnerIndexVector.push_back(tournamentIndexVector.back());
 	tournamentIndexVector.pop_back();
 
-	for (uint k = 0; k < winnerIndexVector.size() && k + 1 < winnerIndexVector.size(); k+=2)
+	for (uint k = 0; k < winnerIndexVector.size() && k + 1 < winnerIndexVector.size(); k += 2)
 	{
 		population_[winnerIndexVector[k]]->partner_ = winnerIndexVector[k + 1];
-		population_[winnerIndexVector[k+1]]->partner_ = winnerIndexVector[k];
+		population_[winnerIndexVector[k + 1]]->partner_ = winnerIndexVector[k];
 	}
 
 	printPopulation();
 	getchar(); // g++ pause
 }
 
-void Nsga::crossoverAndMutation() {
+void Nsga::crossoverAndMutation()
+{
 	std::vector<int> processMask;
 	std::vector<int> machineMask;
-	std::srand ( unsigned ( std::time(0) ) );
+	std::srand(unsigned(std::time(0)));
 
-	for (int i = 0; i < numberOfProcesses_/2; i++)
+	for (int i = 0; i < numberOfProcesses_ / 2; i++)
 	{
 		processMask.push_back(1);
 		machineMask.push_back(1);
 	}
 
-	for (int j = numberOfProcesses_/2; j < numberOfProcesses_; j++)
+	for (int j = numberOfProcesses_ / 2; j < numberOfProcesses_; j++)
 	{
 		processMask.push_back(0);
 		machineMask.push_back(0);
@@ -264,23 +272,23 @@ void Nsga::crossoverAndMutation() {
 
 			std::random_shuffle(processMask.begin(), processMask.end());
 			std::random_shuffle(machineMask.begin(), machineMask.end());
-			
-			for(uint iter1 = 0; iter1 < processMask.size(); iter1++)
+
+			for (uint iter1 = 0; iter1 < processMask.size(); iter1++)
 			{
 				int gene1 = population_[k]->processes_[iter1];
 				int gene2 = population_[partner]->processes_[iter1];
 
-				child1->processes_.push_back(processMask[iter1]==1?gene1:gene2);
-				child2->processes_.push_back(processMask[iter1]==1?gene2:gene1);
+				child1->processes_.push_back(processMask[iter1] == 1 ? gene1 : gene2);
+				child2->processes_.push_back(processMask[iter1] == 1 ? gene2 : gene1);
 			}
 
-			for(uint iter2 = 0; iter2 < machineMask.size(); iter2++)
+			for (uint iter2 = 0; iter2 < machineMask.size(); iter2++)
 			{
 				int gene1 = population_[k]->machines_[iter2];
 				int gene2 = population_[partner]->machines_[iter2];
 
-				child1->machines_.push_back(machineMask[iter2]==1?gene1:gene2);
-				child2->machines_.push_back(machineMask[iter2]==1?gene2:gene1);
+				child1->machines_.push_back(machineMask[iter2] == 1 ? gene1 : gene2);
+				child2->machines_.push_back(machineMask[iter2] == 1 ? gene2 : gene1);
 			}
 
 			child1->mutate();
@@ -301,16 +309,16 @@ void Nsga::cleanupOldValues()
 {
 	for (auto iter : population_)
 	{
-		for (auto& i : iter->processes_)
+		for (auto &i : iter->processes_)
 		{
 			if (i == 0 || i > n_)
 			{
 				i = rand() % n_ + 1;
 			}
 		}
-		for (auto& j : iter->machines_)
+		for (auto &j : iter->machines_)
 		{
-			if (j == 0 || j > m_ )
+			if (j == 0 || j > m_)
 			{
 				j = rand() % m_ + 1;
 			}
@@ -318,7 +326,7 @@ void Nsga::cleanupOldValues()
 		iter->maxCompletionTime_ = 0;
 		iter->totalEquipmentLoad_ = 0;
 		iter->dominationCount_ = 0;
-		while(!iter->dominatedPoints_.empty())
+		while (!iter->dominatedPoints_.empty())
 		{
 			iter->dominatedPoints_.pop_back();
 		}
@@ -331,7 +339,8 @@ void Nsga::cleanupOldValues()
 	getchar(); // g++ pause
 }
 
-void Nsga::outputOptimalSolution() {
+void Nsga::outputOptimalSolution()
+{
 	determineFitnessValue();
 	rankNonDominatedAndCrowding();
 
@@ -346,30 +355,30 @@ void Nsga::outputOptimalSolution() {
 	std::cout << "\nOptimal solutions sorted by total front level and crowding distance: \n";
 	//	sort population based on front and then sort based on crowding distance
 	std::sort(population_.begin(), population_.end(),
-		[](const IndividualPtr &a, const IndividualPtr &b) -> bool
-		{
-			return a->frontLevel_ < b->frontLevel_;
-		});
+			  [](const IndividualPtr &a, const IndividualPtr &b) -> bool
+			  {
+				  return a->frontLevel_ < b->frontLevel_;
+			  });
 
 	std::sort(population_.begin(), population_.end(),
-		[](const IndividualPtr &a, const IndividualPtr &b) -> bool
-		{
-			if (a->frontLevel_ == b->frontLevel_)
-				return a->crowdingDistance_ > b->crowdingDistance_;
-			else
-				return false;
-		});
+			  [](const IndividualPtr &a, const IndividualPtr &b) -> bool
+			  {
+				  if (a->frontLevel_ == b->frontLevel_)
+					  return a->crowdingDistance_ > b->crowdingDistance_;
+				  else
+					  return false;
+			  });
 	printPopulation();
 }
 
 void Nsga::calculateFrontLevel()
 {
-	std::vector<int> frontCountVector(5,0);
+	std::vector<int> frontCountVector(5, 0);
 
-	for (auto& iter: population_)
+	for (auto &iter : population_)
 	{
 		iter->frontLevel_ = iter->dominationCount_ + 4;
-		if(iter->frontLevel_ > 4)
+		if (iter->frontLevel_ > 4)
 		{
 			iter->frontLevel_ = 4;
 		}
@@ -435,11 +444,11 @@ void Nsga::calculateFrontCrowdingDistance()
 	uint front1Iter, front2Iter, front3Iter, front4Iter;
 	front1Iter = front2Iter = front3Iter = front4Iter = 0;
 
-	for (auto& individual : population_)
+	for (auto &individual : population_)
 	{
 		if (individual->frontLevel_ == 1)
 		{
-			if (front1Iter == 0 || front1Iter == (front1_.size()-1))
+			if (front1Iter == 0 || front1Iter == (front1_.size() - 1))
 			{
 				individual->crowdingDistance_ += maxCrowdingDistance_;
 			}
@@ -453,7 +462,7 @@ void Nsga::calculateFrontCrowdingDistance()
 
 		if (individual->frontLevel_ == 2)
 		{
-			if (front2Iter == 0 || front2Iter == (front2_.size()-1))
+			if (front2Iter == 0 || front2Iter == (front2_.size() - 1))
 			{
 				individual->crowdingDistance_ += maxCrowdingDistance_;
 			}
@@ -467,7 +476,7 @@ void Nsga::calculateFrontCrowdingDistance()
 
 		if (individual->frontLevel_ == 3)
 		{
-			if (front3Iter == 0 || front3Iter == (front3_.size()-1))
+			if (front3Iter == 0 || front3Iter == (front3_.size() - 1))
 			{
 				individual->crowdingDistance_ += maxCrowdingDistance_;
 			}
@@ -481,7 +490,7 @@ void Nsga::calculateFrontCrowdingDistance()
 
 		if (individual->frontLevel_ == 4)
 		{
-			if (front4Iter == 0 || front4Iter == (front4_.size()-1))
+			if (front4Iter == 0 || front4Iter == (front4_.size() - 1))
 			{
 				individual->crowdingDistance_ += maxCrowdingDistance_;
 			}
@@ -499,8 +508,7 @@ void Nsga::calculateFrontCrowdingDistance()
 	front4_.clear();
 }
 
-
-void Nsga::selectionTournament(std::vector<int> & tournamentIndexVector,
+void Nsga::selectionTournament(std::vector<int> &tournamentIndexVector,
 							   std::vector<int> &winnerIndexVector,
 							   int iter)
 {
@@ -560,29 +568,29 @@ void Nsga::sortNonDominated()
 	{
 		if (population_[i]->dominationCount_ < 0)
 		{
-		// negative values for individuals that already dominate
-		population_[i]->dominationCount_-=1;
+			// negative values for individuals that already dominate
+			population_[i]->dominationCount_ -= 1;
 		}
 	}
-	
+
 	for (uint j = 0; j < population_.size(); j++)
 	{
 		if (population_[j]->dominationCount_ == 0)
 		{
-			//separating the 1st sorting from the 2nd
-			population_[j]->dominationCount_=-1;
+			// separating the 1st sorting from the 2nd
+			population_[j]->dominationCount_ = -1;
 		}
 	}
 
 	for (uint k = 0; k < population_.size(); k++)
 	{
 		if (population_[k]->dominationCount_ == -1)
-		{			
+		{
 			for (auto it : population_[k]->dominatedPoints_)
-				{
-					// for every dominatedPoint, go to corresponding individual and decrement the dominationCount
-					population_[it]->dominationCount_-=1;
-				}
+			{
+				// for every dominatedPoint, go to corresponding individual and decrement the dominationCount
+				population_[it]->dominationCount_ -= 1;
+			}
 		}
 	}
 	printDominationValues();
@@ -591,19 +599,19 @@ void Nsga::sortNonDominated()
 void Nsga::sortPopulationByMaxCompletionTime()
 {
 	std::sort(population_.begin(), population_.end(),
-		[](const IndividualPtr &a, const IndividualPtr &b) -> bool
-		{
-			return a->maxCompletionTime_ < b->maxCompletionTime_;
-		});
+			  [](const IndividualPtr &a, const IndividualPtr &b) -> bool
+			  {
+				  return a->maxCompletionTime_ < b->maxCompletionTime_;
+			  });
 }
 
 void Nsga::sortPopulationByTotalEquipmentLoad()
 {
 	std::sort(population_.begin(), population_.end(),
-		[](const IndividualPtr &a, const IndividualPtr &b) -> bool
-		{
-			return a->totalEquipmentLoad_ < b->totalEquipmentLoad_;
-		});
+			  [](const IndividualPtr &a, const IndividualPtr &b) -> bool
+			  {
+				  return a->totalEquipmentLoad_ < b->totalEquipmentLoad_;
+			  });
 }
 
 // utility methods
@@ -613,7 +621,7 @@ void Nsga::printPopulation()
 	int itteration = 0;
 
 	std::cout << "\nCurrent population:\n\n";
-	for (auto& individual : population_)
+	for (auto &individual : population_)
 	{
 		std::cout << "Individual " << std::setw(2) << itteration++ << ": " << individual->getGenesAsSStream().str()
 				  << "  Front Level: " << std::setw(2) << individual->frontLevel_
@@ -637,10 +645,10 @@ void Nsga::printDominationValues()
 {
 	int i = 0;
 	std::cout << "\ndominationValues:\n";
-	for(auto& iter : population_)
+	for (auto &iter : population_)
 	{
 		std::cout << "Individual " << std::setw(2) << i++
-				  <<": domination_count: " << std::setw(2) << iter->dominationCount_ << " dominated_list: ";
+				  << ": domination_count: " << std::setw(2) << iter->dominationCount_ << " dominated_list: ";
 		for (auto iter2 : iter->dominatedPoints_)
 		{
 			std::cout << iter2 << " ";
@@ -651,7 +659,7 @@ void Nsga::printDominationValues()
 
 int main()
 {
-	int n,m;
+	int n, m;
 	int itterations;
 	int sampleSize;
 	int numberOfProcesses;

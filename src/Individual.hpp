@@ -4,9 +4,9 @@
 #include <memory>
 #include <vector>
 
-struct Individual{
+struct Individual
+{
 public:
-
 	std::stringstream getGenesAsSStream();
 	void mutate();
 
@@ -15,7 +15,7 @@ public:
 	int maxCompletionTime_ = 0;
 	int totalEquipmentLoad_ = 0;
 
-	int  dominationCount_ = 0;
+	int dominationCount_ = 0;
 	std::vector<int> dominatedPoints_;
 
 	int frontLevel_ = 0;

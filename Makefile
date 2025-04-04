@@ -4,14 +4,16 @@ BINPATH = bin
 SRCPATH = src
 MAINFILE = NSGA2
 
-build: createBin $(patsubst %.cpp, %.out, $(SRCPATH)/$(MAINFILE).cpp)
-cleanBuild: clean build
+build: createBin
+	$(CXX) $(CXXFLAGS) $(SRCPATH)/$(MAINFILE).cpp -o $(BINPATH)/$(MAINFILE)
 
-%.out: %.cpp
-	$(CXX) $(CXXFLAGS) $< -o $(BINPATH)/$(MAINFILE)
+run:
+	./$(BINPATH)/$(MAINFILE)
 
-clean:
-	rm -rf bin
+buildAndRun: build run
 
 createBin:
 	mkdir -p $(BINPATH)
+
+clean:
+	rm -rf bin
